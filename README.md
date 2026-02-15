@@ -2,10 +2,10 @@
 
 > A curated, ever-growing collection of full-stack development resources — algorithms, code snippets, system design concepts, and interview prep materials.
 
-[![Last Updated](https://img.shields.io/badge/Last%20Updated-2026--02--14-brightgreen)](#)
+[![Last Updated](https://img.shields.io/badge/Last%20Updated-2026-02-14-brightgreen)](#)
 [![Algorithms](https://img.shields.io/badge/Algorithms-0-blue)](#-algorithms)
-[![Snippets](https://img.shields.io/badge/Snippets-0-orange)](#-code-snippets)
-[![Concepts](https://img.shields.io/badge/Concepts-0-purple)](#-concepts--notes)
+[![Snippets](https://img.shields.io/badge/Snippets-1-orange)](#-code-snippets)
+[![Concepts](https://img.shields.io/badge/Concepts-1-purple)](#-concepts--notes)
 
 ---
 
@@ -56,6 +56,7 @@ fullstack-kit/
 | Trees | 0 |
 | Strings | 0 |
 
+
 ## 📝 Code Snippets
 
 | Language/Framework | Count |
@@ -63,10 +64,11 @@ fullstack-kit/
 | JavaScript | 0 |
 | Python | 0 |
 | React | 0 |
-| Node.js | 0 |
+| Node.js | 1 |
 | SQL | 0 |
 | CSS | 0 |
 | TypeScript | 0 |
+
 
 ## 📚 Concepts & Notes
 
@@ -75,10 +77,11 @@ fullstack-kit/
 | System Design | 0 |
 | Interview Prep | 0 |
 | Dev Tips | 0 |
-| Design Patterns | 0 |
+| Design Patterns | 1 |
+
 
 <!-- STATS_START -->
-**📊 Total Items: 0 | Last auto-update: 2026-02-14**
+**📊 Total Items: 2 | Last auto-update: 2026-02-14**
 <!-- STATS_END -->
 
 ## 🤝 Contributing
