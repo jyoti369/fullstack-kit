@@ -1,0 +1,75 @@
+/* =============================================================
+   CSS Grid Layout Patterns
+   Common, production-ready grid layouts for modern web apps
+   ============================================================= */
+
+/* --- 1. Holy Grail Layout --- */
+.holy-grail {
+  display: grid;
+  grid-template-areas:
+    'header header header'
+    'nav    main   aside'
+    'footer footer footer';
+  grid-template-rows: auto 1fr auto;
+  grid-template-columns: 250px 1fr 200px;
+  min-height: 100vh;
+  gap: 1rem;
+}
+.holy-grail > header { grid-area: header; }
+.holy-grail > nav    { grid-area: nav; }
+.holy-grail > main   { grid-area: main; }
+.holy-grail > aside  { grid-area: aside; }
+.holy-grail > footer { grid-area: footer; }
+
+/* --- 2. Auto-fit Responsive Cards --- */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  padding: 1.5rem;
+}
+
+/* --- 3. Dashboard Layout --- */
+.dashboard {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  grid-template-rows: 60px 1fr;
+  grid-template-areas:
+    'sidebar header'
+    'sidebar content';
+  min-height: 100vh;
+}
+.dashboard__sidebar { grid-area: sidebar; }
+.dashboard__header  { grid-area: header; }
+.dashboard__content { grid-area: content; overflow-y: auto; }
+
+/* --- 4. Masonry-like with Grid --- */
+.masonry {
+  columns: 3;
+  column-gap: 1rem;
+}
+.masonry-item {
+  break-inside: avoid;
+  margin-bottom: 1rem;
+}
+
+/* --- 5. Responsive: collapse sidebar on mobile --- */
+@media (max-width: 768px) {
+  .holy-grail {
+    grid-template-areas:
+      'header'
+      'main'
+      'footer';
+    grid-template-columns: 1fr;
+  }
+  .holy-grail > nav,
+  .holy-grail > aside { display: none; }
+
+  .dashboard {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      'header'
+      'content';
+  }
+  .dashboard__sidebar { display: none; }
+}
