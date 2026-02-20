@@ -2,9 +2,9 @@
 
 > A curated, ever-growing collection of full-stack development resources — algorithms, code snippets, system design concepts, and interview prep materials.
 
-[![Last Updated](https://img.shields.io/badge/Last%20Updated-2026-02-19-brightgreen)](#)
-[![Algorithms](https://img.shields.io/badge/Algorithms-5-blue)](#-algorithms)
-[![Snippets](https://img.shields.io/badge/Snippets-5-orange)](#-code-snippets)
+[![Last Updated](https://img.shields.io/badge/Last%20Updated-2026-02-20-brightgreen)](#)
+[![Algorithms](https://img.shields.io/badge/Algorithms-6-blue)](#-algorithms)
+[![Snippets](https://img.shields.io/badge/Snippets-6-orange)](#-code-snippets)
 [![Concepts](https://img.shields.io/badge/Concepts-4-purple)](#-concepts--notes)
 
 ---
@@ -53,7 +53,7 @@ fullstack-kit/
 | Searching | 0 |
 | Dynamic Programming | 0 |
 | Graphs | 2 |
-| Trees | 0 |
+| Trees | 1 |
 | Strings | 2 |
 
 
@@ -64,7 +64,7 @@ fullstack-kit/
 | JavaScript | 1 |
 | Python | 1 |
 | React | 0 |
-| Node.js | 1 |
+| Node.js | 2 |
 | SQL | 1 |
 | CSS | 1 |
 | TypeScript | 0 |
@@ -81,7 +81,7 @@ fullstack-kit/
 
 
 <!-- STATS_START -->
-**📊 Total Items: 14 | Last auto-update: 2026-02-19**
+**📊 Total Items: 16 | Last auto-update: 2026-02-20**
 <!-- STATS_END -->
 
 ## 🤝 Contributing
