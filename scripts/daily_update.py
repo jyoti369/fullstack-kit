@@ -1,13 +1,18 @@
 #!/usr/bin/env python3
 """
 Daily auto-update script for fullstack-kit.
-Picks 1-3 items from the content pool, creates files, updates README, commits & pushes.
-Designed to look natural — varies commit count, timing, and messages.
+-------------------------------------------
+Designed to look like natural developer activity:
+- Picked daily target of 1/2/3 commits decided ONCE at the start of each day.
+- Script can be triggered multiple times a day (by launchd at 4 different times).
+- Each trigger checks if today's target is reached; if not, it commits one batch.
+- This way, some days have 1 commit at 9 AM, others have 3 commits spread across the day.
 """
 
 import os
 import sys
 import json
+import re
 import random
 import subprocess
 from datetime import datetime, timedelta
@@ -19,25 +24,55 @@ CONTENT_DIR = ROOT / "scripts" / "content_pool"
 STATE_FILE = ROOT / "scripts" / ".state.json"
 
 # ---------------------------------------------------------------------------
-# State management — tracks which content has been used
+# State management
 # ---------------------------------------------------------------------------
 
 def load_state():
     if STATE_FILE.exists():
         with open(STATE_FILE) as f:
             return json.load(f)
-    return {"used": [], "total_items": 0, "last_run": None}
+    return {
+        "used": [],
+        "total_items": 0,
+        "last_run": None,
+        "today_date": None,
+        "today_target": 0,
+        "today_done": 0,
+    }
 
 def save_state(state):
     with open(STATE_FILE, "w") as f:
         json.dump(state, f, indent=2)
 
 # ---------------------------------------------------------------------------
+# Daily target logic — decide how many commits to make today (once per day)
+# ---------------------------------------------------------------------------
+
+def refresh_daily_target(state):
+    """
+    At the start of each new day, randomly pick today's commit target (1, 2, or 3).
+    Weights: 1→35%, 2→45%, 3→20%
+    """
+    today_str = datetime.now().strftime("%Y-%m-%d")
+    if state.get("today_date") != today_str:
+        # New day — reset counters and pick new target
+        state["today_date"] = today_str
+        state["today_done"] = 0
+        state["today_target"] = random.choices([1, 2, 3], weights=[35, 45, 20])[0]
+        print(f"📅 New day ({today_str}). Today's commit target: {state['today_target']}")
+    else:
+        print(f"📅 Today ({today_str}): {state['today_done']}/{state['today_target']} commits done.")
+    return state
+
+def should_commit_now(state):
+    """Return True if we still have commits to make today."""
+    return state["today_done"] < state["today_target"]
+
+# ---------------------------------------------------------------------------
 # Content pool loader
 # ---------------------------------------------------------------------------
 
 def load_content_pool():
-    """Load all content JSON files from the content_pool directory."""
     pool = []
     for f in sorted(CONTENT_DIR.glob("*.json")):
         with open(f) as fh:
@@ -45,12 +80,12 @@ def load_content_pool():
             pool.extend(data)
     return pool
 
-def pick_items(pool, state, count=None):
-    """Pick 1-3 unused items from the pool. Resets if all used."""
-    if count is None:
-        count = random.choices([1, 2, 3], weights=[30, 50, 20])[0]
+def pick_items(pool, state):
+    """Pick 1 batch of items (1-2 items) for this commit run."""
+    count = random.choices([1, 2], weights=[60, 40])[0]
     available = [i for i, item in enumerate(pool) if i not in state["used"]]
     if len(available) < count:
+        # Reset used list when pool is exhausted
         state["used"] = []
         available = list(range(len(pool)))
     picked_indices = random.sample(available, min(count, len(available)))
@@ -62,14 +97,12 @@ def pick_items(pool, state, count=None):
 # ---------------------------------------------------------------------------
 
 def create_content_file(item):
-    """Create the actual file from a content item."""
     rel_path = item["path"]
     content = item["content"]
     full_path = ROOT / rel_path
     full_path.parent.mkdir(parents=True, exist_ok=True)
-    
+
     if full_path.exists():
-        # Append or enhance existing file
         with open(full_path, "a") as f:
             f.write("\n\n" + content)
     else:
@@ -82,7 +115,6 @@ def create_content_file(item):
 # ---------------------------------------------------------------------------
 
 def count_files(directory, extensions=None):
-    """Count files in a directory recursively."""
     if extensions is None:
         extensions = {".js", ".py", ".ts", ".tsx", ".jsx", ".sql", ".css", ".md"}
     count = 0
@@ -94,12 +126,10 @@ def count_files(directory, extensions=None):
     return count
 
 def update_readme(total_items):
-    """Update README.md with current stats."""
     readme_path = ROOT / "README.md"
     content = readme_path.read_text()
     today = datetime.now().strftime("%Y-%m-%d")
-    
-    # Count by category
+
     algo_cats = {
         "Sorting": count_files("algorithms/sorting"),
         "Searching": count_files("algorithms/searching"),
@@ -123,84 +153,64 @@ def update_readme(total_items):
         "Dev Tips": count_files("concepts/dev-tips"),
         "Design Patterns": count_files("concepts/design-patterns"),
     }
-    
-    # Update badge counts
+
     total_algos = sum(algo_cats.values())
     total_snippets = sum(snippet_cats.values())
     total_concepts = sum(concept_cats.values())
-    
-    import re
-    content = re.sub(
-        r'Last%20Updated-.*?-brightgreen',
-        f'Last%20Updated-{today}-brightgreen', content)
-    content = re.sub(
-        r'Algorithms-\d+-blue',
-        f'Algorithms-{total_algos}-blue', content)
-    content = re.sub(
-        r'Snippets-\d+-orange',
-        f'Snippets-{total_snippets}-orange', content)
-    content = re.sub(
-        r'Concepts-\d+-purple',
-        f'Concepts-{total_concepts}-purple', content)
-    
-    # Update algorithm table
+
+    content = re.sub(r'Last%20Updated-.*?-brightgreen', f'Last%20Updated-{today}-brightgreen', content)
+    content = re.sub(r'Algorithms-\d+-blue', f'Algorithms-{total_algos}-blue', content)
+    content = re.sub(r'Snippets-\d+-orange', f'Snippets-{total_snippets}-orange', content)
+    content = re.sub(r'Concepts-\d+-purple', f'Concepts-{total_concepts}-purple', content)
+
     algo_table = "| Category | Count |\n|----------|-------|\n"
     for cat, cnt in algo_cats.items():
         algo_table += f"| {cat} | {cnt} |\n"
-    content = re.sub(
-        r'(## 🧮 Algorithms\n\n).*?(?=\n## )',
-        f'\\1{algo_table}\n', content, flags=re.DOTALL)
-    
-    # Update snippets table
+    content = re.sub(r'(## 🧮 Algorithms\n\n).*?(?=\n## )', f'\\1{algo_table}\n', content, flags=re.DOTALL)
+
     snip_table = "| Language/Framework | Count |\n|-------------------|-------|\n"
     for cat, cnt in snippet_cats.items():
         snip_table += f"| {cat} | {cnt} |\n"
-    content = re.sub(
-        r'(## 📝 Code Snippets\n\n).*?(?=\n## )',
-        f'\\1{snip_table}\n', content, flags=re.DOTALL)
-    
-    # Update concepts table
+    content = re.sub(r'(## 📝 Code Snippets\n\n).*?(?=\n## )', f'\\1{snip_table}\n', content, flags=re.DOTALL)
+
     conc_table = "| Category | Count |\n|----------|-------|\n"
     for cat, cnt in concept_cats.items():
         conc_table += f"| {cat} | {cnt} |\n"
-    content = re.sub(
-        r'(## 📚 Concepts & Notes\n\n).*?(?=\n<!--)',
-        f'\\1{conc_table}\n', content, flags=re.DOTALL)
-    
-    # Update stats line
+    content = re.sub(r'(## 📚 Concepts & Notes\n\n).*?(?=\n<!--)', f'\\1{conc_table}\n', content, flags=re.DOTALL)
+
     content = re.sub(
         r'<!-- STATS_START -->.*?<!-- STATS_END -->',
         f'<!-- STATS_START -->\n**📊 Total Items: {total_items} | Last auto-update: {today}**\n<!-- STATS_END -->',
         content, flags=re.DOTALL)
-    
+
     readme_path.write_text(content)
 
 # ---------------------------------------------------------------------------
 # Daily log
 # ---------------------------------------------------------------------------
 
-def create_daily_log(items):
-    """Create a daily log entry."""
+def create_daily_log(items, run_number):
     today = datetime.now().strftime("%Y-%m-%d")
+    now = datetime.now().strftime("%H:%M")
     log_path = ROOT / "daily" / f"{today}.md"
-    
-    lines = [f"# Daily Update — {today}\n"]
-    lines.append(f"Added {len(items)} item(s) today:\n")
+
+    if log_path.exists():
+        existing = log_path.read_text()
+    else:
+        existing = f"# Daily Update — {today}\n\n"
+
+    entry = f"\n## Commit #{run_number} at {now}\n"
     for item in items:
-        lines.append(f"- **{item['title']}** → `{item['path']}`")
-        lines.append(f"  - Category: {item['category']}")
-    lines.append("")
-    
-    log_path.write_text("\n".join(lines))
+        entry += f"- **{item['title']}** → `{item['path']}`\n"
+
+    log_path.write_text(existing + entry)
     return f"daily/{today}.md"
 
 # ---------------------------------------------------------------------------
 # Git operations
 # ---------------------------------------------------------------------------
 
-COMMIT_PREFIXES = [
-    "feat", "add", "docs", "refactor", "chore", "update", "improve"
-]
+COMMIT_PREFIXES = ["feat", "add", "docs", "refactor", "chore", "update", "improve", "fix", "perf"]
 
 COMMIT_TEMPLATES = [
     "{prefix}: add {title}",
@@ -208,17 +218,17 @@ COMMIT_TEMPLATES = [
     "{prefix}({category}): add {title}",
     "{prefix}: new {category} — {title}",
     "{prefix}: add {title} with examples",
+    "{prefix}({category}): {title}",
+    "{prefix}: implement {title}",
 ]
 
 def git_commit_and_push(items):
-    """Commit and push changes with realistic messages."""
     os.chdir(ROOT)
     subprocess.run(["git", "add", "."], check=True)
-    
-    # Generate a realistic commit message
+
     prefix = random.choice(COMMIT_PREFIXES)
     template = random.choice(COMMIT_TEMPLATES)
-    
+
     if len(items) == 1:
         msg = template.format(
             prefix=prefix,
@@ -230,7 +240,7 @@ def git_commit_and_push(items):
         if len(items) > 2:
             titles += f" and {len(items)-2} more"
         msg = f"{prefix}: add {titles}"
-    
+
     subprocess.run(["git", "commit", "-m", msg], check=True)
     subprocess.run(["git", "push", "origin", "main"], check=True)
     print(f"✅ Committed and pushed: {msg}")
@@ -240,40 +250,56 @@ def git_commit_and_push(items):
 # ---------------------------------------------------------------------------
 
 def main():
-    print(f"🚀 Daily update — {datetime.now().strftime('%Y-%m-%d %H:%M')}")
-    
+    print(f"\n🚀 Script triggered — {datetime.now().strftime('%Y-%m-%d %H:%M')}")
+
     state = load_state()
     pool = load_content_pool()
-    
+
     if not pool:
         print("❌ No content in pool!")
         sys.exit(1)
-    
-    # Pick items
+
+    # Check if we've already hit today's target
+    state = refresh_daily_target(state)
+
+    if not should_commit_now(state):
+        print(f"✅ Today's target already reached ({state['today_done']}/{state['today_target']}). Skipping.")
+        sys.exit(0)
+
+    # Pick items for this commit
     items = pick_items(pool, state)
-    print(f"📦 Picked {len(items)} items")
-    
+    print(f"📦 Picked {len(items)} items for commit #{state['today_done'] + 1}")
+
     # Create content files
     for item in items:
         path = create_content_file(item)
         print(f"  ✏️  Created: {path}")
-    
+
     # Create daily log
-    log_path = create_daily_log(items)
+    run_number = state["today_done"] + 1
+    log_path = create_daily_log(items, run_number)
     print(f"  📝 Log: {log_path}")
-    
+
     # Update README
     state["total_items"] = state.get("total_items", 0) + len(items)
     state["last_run"] = datetime.now().isoformat()
     update_readme(state["total_items"])
-    
+
+    # Increment today's done counter
+    state["today_done"] += 1
+
     # Save state
     save_state(state)
-    
+
     # Git commit and push
     git_commit_and_push(items)
-    
-    print("🎉 Done!")
+
+    remaining = state["today_target"] - state["today_done"]
+    if remaining > 0:
+        print(f"⏳ {remaining} more commit(s) scheduled for later today.")
+    else:
+        print(f"🎉 All {state['today_target']} commits done for today!")
+
 
 if __name__ == "__main__":
     main()
