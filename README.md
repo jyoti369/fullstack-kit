@@ -2,8 +2,8 @@
 
 > A curated, ever-growing collection of full-stack development resources — algorithms, code snippets, system design concepts, and interview prep materials.
 
-[![Last Updated](https://img.shields.io/badge/Last%20Updated-2026-02-20-brightgreen)](#)
-[![Algorithms](https://img.shields.io/badge/Algorithms-6-blue)](#-algorithms)
+[![Last Updated](https://img.shields.io/badge/Last%20Updated-2026-02-21-brightgreen)](#)
+[![Algorithms](https://img.shields.io/badge/Algorithms-7-blue)](#-algorithms)
 [![Snippets](https://img.shields.io/badge/Snippets-6-orange)](#-code-snippets)
 [![Concepts](https://img.shields.io/badge/Concepts-4-purple)](#-concepts--notes)
 
@@ -53,7 +53,7 @@ fullstack-kit/
 | Searching | 0 |
 | Dynamic Programming | 0 |
 | Graphs | 2 |
-| Trees | 1 |
+| Trees | 2 |
 | Strings | 2 |
 
 
@@ -81,7 +81,7 @@ fullstack-kit/
 
 
 <!-- STATS_START -->
-**📊 Total Items: 16 | Last auto-update: 2026-02-20**
+**📊 Total Items: 17 | Last auto-update: 2026-02-21**
 <!-- STATS_END -->
 
 ## 🤝 Contributing
