@@ -5,7 +5,7 @@
 [![Last Updated](https://img.shields.io/badge/Last%20Updated-2026-03-28-brightgreen)](#)
 [![Algorithms](https://img.shields.io/badge/Algorithms-7-blue)](#-algorithms)
 [![Snippets](https://img.shields.io/badge/Snippets-6-orange)](#-code-snippets)
-[![Concepts](https://img.shields.io/badge/Concepts-36-purple)](#-concepts--notes)
+[![Concepts](https://img.shields.io/badge/Concepts-37-purple)](#-concepts--notes)
 
 ---
 
@@ -75,13 +75,13 @@ fullstack-kit/
 | Category | Count |
 |----------|-------|
 | System Design | 23 |
-| Interview Prep | 5 |
+| Interview Prep | 6 |
 | Dev Tips | 5 |
 | Design Patterns | 3 |
 
 
 <!-- STATS_START -->
-**📊 Total Items: 98 | Last auto-update: 2026-03-28**
+**📊 Total Items: 100 | Last auto-update: 2026-03-28**
 <!-- STATS_END -->
 
 ## 🤝 Contributing
