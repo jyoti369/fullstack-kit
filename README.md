@@ -2,10 +2,10 @@
 
 > A curated, ever-growing collection of full-stack development resources — algorithms, code snippets, system design concepts, and interview prep materials.
 
-[![Last Updated](https://img.shields.io/badge/Last%20Updated-2026-04-05-brightgreen)](#)
+[![Last Updated](https://img.shields.io/badge/Last%20Updated-2026-04-06-brightgreen)](#)
 [![Algorithms](https://img.shields.io/badge/Algorithms-7-blue)](#-algorithms)
 [![Snippets](https://img.shields.io/badge/Snippets-6-orange)](#-code-snippets)
-[![Concepts](https://img.shields.io/badge/Concepts-40-purple)](#-concepts--notes)
+[![Concepts](https://img.shields.io/badge/Concepts-41-purple)](#-concepts--notes)
 
 ---
 
@@ -76,12 +76,12 @@ fullstack-kit/
 |----------|-------|
 | System Design | 25 |
 | Interview Prep | 6 |
-| Dev Tips | 6 |
+| Dev Tips | 7 |
 | Design Patterns | 3 |
 
 
 <!-- STATS_START -->
-**📊 Total Items: 112 | Last auto-update: 2026-04-05**
+**📊 Total Items: 114 | Last auto-update: 2026-04-06**
 <!-- STATS_END -->
 
 ## 🤝 Contributing
