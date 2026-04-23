@@ -8,7 +8,7 @@
     <key>ProgramArguments</key>
     <array>
         <string>/bin/bash</string>
-        <string>/Users/debojyoti.mandal/personal/fullstack-kit/scripts/run_daily.sh</string>
+        <string>/Users/debojyoti.mandal/Code/Personal/fullstack-kit/scripts/run_daily.sh</string>
     </array>
 
     <!-- Slot 4: 11:00 PM IST -->
