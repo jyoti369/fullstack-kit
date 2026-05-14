@@ -6,6 +6,9 @@
 [![Algorithms](https://img.shields.io/badge/Algorithms-7-blue)](#-algorithms)
 [![Snippets](https://img.shields.io/badge/Snippets-6-orange)](#-code-snippets)
 [![Concepts](https://img.shields.io/badge/Concepts-42-purple)](#-concepts--notes)
+[![Sponsor](https://img.shields.io/badge/💝-Sponsor-EA4AAA?logo=github-sponsors&logoColor=white)](https://github.com/sponsors/jyoti369)
+
+> Found this kit useful? Consider [sponsoring](https://github.com/sponsors/jyoti369) ❤️ — it keeps me adding to it on weekends.
 
 ---
 
