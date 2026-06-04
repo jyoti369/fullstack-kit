@@ -363,3 +363,94 @@ Strategies:
 2. **Event-driven**: DB triggers or CDC (Debezium) → invalidate
 3. **Write-through**: Invalidate on every write
 4. **Versioned keys**: `user:v2:123` — never invalidate, just use new key
+
+
+# Caching Strategies — Java/Spring
+
+## Cache Patterns
+
+### 1. Cache-Aside (Lazy Loading) — Most Common
+```java
+// Spring @Cacheable implements this automatically
+@Cacheable(value = "users", key = "#id", unless = "#result == null")
+public User findUser(Long id) {
+    return userRepository.findById(id).orElse(null); // DB hit only on miss
+}
+
+@CacheEvict(value = "users", key = "#user.id")
+public User updateUser(User user) {
+    return userRepository.save(user); // invalidate on write
+}
+```
+
+### 2. Write-Through
+```java
+@CachePut(value = "users", key = "#result.id")  // update cache AND DB
+public User saveUser(User user) { return userRepository.save(user); }
+```
+
+### 3. Write-Behind (Write-Back)
+```java
+// Write to cache immediately, async flush to DB
+@Async
+public void flushToDb(List<CachedItem> items) {
+    repository.saveAll(items);
+}
+// Use with: Redis + Caffeine local cache + scheduled flush
+```
+
+## Caffeine (Local In-process Cache)
+```java
+@Bean
+public CacheManager cacheManager() {
+    CaffeineCacheManager manager = new CaffeineCacheManager();
+    manager.setCaffeine(Caffeine.newBuilder()
+        .maximumSize(10_000)
+        .expireAfterWrite(Duration.ofMinutes(5))
+        .recordStats());    // enable hit/miss metrics
+    return manager;
+}
+// Access stats:
+// cache.stats() → CacheStats{hitCount=..., missCount=..., hitRate=...}
+```
+
+## Two-Level Cache (L1: Caffeine + L2: Redis)
+```java
+@Service
+public class TwoLevelCache<K, V> {
+    private final Cache<K, V> local;   // Caffeine — fast, local
+    private final RedisCache redis;    // Redis — shared across instances
+
+    public V get(K key, Supplier<V> loader) {
+        V v = local.getIfPresent(key);
+        if (v != null) return v;           // L1 hit
+        v = redis.get(key);                // L2 hit
+        if (v != null) { local.put(key, v); return v; }
+        v = loader.get();                  // DB hit
+        local.put(key, v); redis.put(key, v);
+        return v;
+    }
+}
+```
+
+## Eviction Policies
+```
+LRU (Least Recently Used)  — Caffeine default, general purpose
+LFU (Least Frequently Used) — better for hot/cold data (Caffeine's W-TinyLFU)
+TTL (Time To Live)          — time-sensitive data
+Size-based                  — maximumSize(N) + weight-based
+```
+
+## Cache Stampede Prevention (Java)
+```java
+// Problem: on cold start, all threads hit DB simultaneously
+// Fix: probabilistic early expiration or locking
+private final Map<String, CompletableFuture<User>> inFlight = new ConcurrentHashMap<>();
+
+public CompletableFuture<User> getUserAsync(Long id) {
+    return inFlight.computeIfAbsent(String.valueOf(id), k ->
+        CompletableFuture.supplyAsync(() -> userRepository.findById(id).orElseThrow())
+            .whenComplete((r, ex) -> inFlight.remove(k)));
+}
+// Multiple concurrent callers for same key → only ONE DB call, rest wait on same Future
+```
