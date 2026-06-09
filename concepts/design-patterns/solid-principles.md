@@ -69,3 +69,78 @@ class OrderService {
   constructor(database) { this.db = database; }
 }
 ```
+
+
+# SOLID Principles — Java Examples
+
+## S — Single Responsibility Principle
+> A class should have one, and only one, reason to change.
+
+```java
+// ❌ Bad — handles user logic AND email
+class UserService {
+    public void createUser(User u) { /*...*/ }
+    public void sendWelcomeEmail(User u) { /*...*/ }
+}
+
+// ✅ Good — separated concerns
+class UserService { public void createUser(User u) { /*...*/ } }
+class EmailService { public void sendWelcomeEmail(User u) { /*...*/ } }
+```
+
+## O — Open/Closed Principle
+> Open for extension, closed for modification.
+
+```java
+// ❌ Bad — modify this class every time a new discount type is added
+if (type.equals("premium")) price *= 0.9;
+else if (type.equals("vip")) price *= 0.8;
+
+// ✅ Good — add new strategy without touching existing code
+interface DiscountStrategy { double apply(double price); }
+class PremiumDiscount implements DiscountStrategy { public double apply(double p) { return p * 0.9; } }
+class VipDiscount     implements DiscountStrategy { public double apply(double p) { return p * 0.8; } }
+class PriceCalculator {
+    private final DiscountStrategy strategy;
+    PriceCalculator(DiscountStrategy s) { this.strategy = s; }
+    double calculate(double price) { return strategy.apply(price); }
+}
+```
+
+## L — Liskov Substitution Principle
+```java
+// Subtypes must be substitutable for base types
+class Rectangle { protected int w, h; void setWidth(int w){this.w=w;} }
+class Square extends Rectangle {
+    // ❌ Bad: Square.setWidth overrides and breaks Rectangle's contract
+    void setWidth(int w) { this.w = this.h = w; } // now height also changes!
+}
+// Fix: don't inherit — use interface Shape instead
+```
+
+## I — Interface Segregation
+```java
+// ❌ Fat interface — Robot forced to implement eat()/sleep()
+interface Worker { void work(); void eat(); void sleep(); }
+
+// ✅ Segregated
+interface Workable { void work(); }
+interface Feedable  { void eat(); }
+interface Restable  { void sleep(); }
+class Robot   implements Workable { public void work() { /*...*/ } }
+class Employee implements Workable, Feedable, Restable { /*...*/ }
+```
+
+## D — Dependency Inversion
+```java
+// ❌ Direct dependency on concrete class
+class OrderService { private MySQLDatabase db = new MySQLDatabase(); }
+
+// ✅ Depend on abstraction
+interface OrderRepository { Order findById(Long id); }
+class OrderService {
+    private final OrderRepository repo; // injected
+    OrderService(OrderRepository repo) { this.repo = repo; }
+}
+// Spring does this automatically via @Autowired / constructor injection
+```
