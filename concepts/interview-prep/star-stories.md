@@ -237,3 +237,80 @@ A: • Analysed: large PRs averaged 4 days, small PRs < 8 hours.
 R: Average review time: 4 days → 18 hours (340% improvement).
    Team shipped 2.2x more features per sprint.
 ```
+
+
+# Behavioural Interview — STAR Framework
+
+## STAR Method
+```
+S — Situation: Set context (team size, company stage, timeline)
+T — Task:      Your specific responsibility
+A — Action:    What YOU did (use I, not we)
+R — Result:    Measurable outcome
+```
+
+## Common Questions and Story Templates
+
+### Tell me about a difficult technical problem you solved
+```
+S: Our payment service was silently dropping 0.5% of transactions
+   at scale. No error, money debited but order not created.
+
+T: I was on-call and had to root-cause and fix within SLA.
+
+A: Added distributed tracing (Zipkin) across payment service.
+   Discovered race condition in async Kafka consumer.
+   Implemented idempotency key + DB unique constraint in Java.
+   Added Dead Letter Queue monitoring with alerts.
+   Ran post-mortem and presented to team.
+
+R: Transaction failure: 0.5% → 0.001%.
+   Saved ~$50K/month in failed orders.
+```
+
+### Tell me about a conflict with a teammate
+```
+S: Senior engineer pushed for full microservices rewrite.
+   I believed it was premature for our 5-person team.
+
+T: Drive the right technical decision while maintaining harmony.
+
+A: Scheduled meeting with both of us + EM.
+   Prepared cost analysis: 3 months migration, 10% load today.
+   Proposed: agree on specific scaling thresholds first.
+   Created shared RFC with trade-offs documented.
+
+R: Team chose modular monolith.
+   Hit threshold after 6 months → started migration with buy-in.
+```
+
+### Tell me about a failure
+```
+S: Ran a DB migration during peak traffic.
+   20-minute outage, 10K users affected.
+
+T: I owned the deploy and failed to check the checklist.
+
+A: Rollback immediately.
+   Updated status page, communicated ETR.
+   Post-mortem: added migration guard in CI/CD pipeline.
+   Every migration now requires off-peak approval.
+
+R: Zero similar incidents in 18 months.
+   Checklist now enforced programmatically.
+```
+
+### Describe a time you improved a process
+```
+S: Code reviews averaging 4 days. PRs stacking up.
+
+T: Reduce cycle time as tech lead without adding process overhead.
+
+A: Analyzed data: large PRs (>400 lines) averaged 4 days.
+   Added GitHub check to flag large PRs.
+   Introduced feature flags for partial, safe merges.
+   Proposed PR size limit — team agreed.
+
+R: Review time: 4 days → 18 hours.
+   Team velocity: 2.2× more features per sprint.
+```
